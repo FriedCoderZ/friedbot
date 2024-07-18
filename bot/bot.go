@@ -27,13 +27,13 @@ func (b *Bot) ClearStreams() {
 }
 
 func (b *Bot) Use(plugins ...Plugin) {
-	for _, plugin := range b.plugins {
+	for _, plugin := range plugins {
 		err := plugin.Install(b)
 		if err != nil {
 			slog.Error("failed to Install plugin", "error", err)
 			panic("failed to Install plugin")
 		}
-		b.plugins = append(b.plugins, plugin)
+		b.plugins = append(plugins, plugin)
 	}
 }
 
