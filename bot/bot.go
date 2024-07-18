@@ -18,10 +18,6 @@ type Bot struct {
 	plugins      []Plugin
 }
 
-const (
-	port = 9000
-)
-
 func (b *Bot) AddStream(stream Stream) {
 	b.streams = append(b.streams, stream)
 }
