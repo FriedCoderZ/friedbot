@@ -1,4 +1,4 @@
-package bot
+package core
 
 import (
 	"github.com/FriedCoderZ/friedbot/cache"

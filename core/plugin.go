@@ -1,4 +1,4 @@
-package bot
+package core
 
 type Plugin interface {
 	GetName() string
