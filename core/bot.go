@@ -18,6 +18,15 @@ type Bot struct {
 	plugins      []Plugin
 }
 
+func NewBot() *Bot {
+	return &Bot{
+		API:          nil,
+		streams:      []Stream{},
+		plugins:      []Plugin{},
+		CacheService: cache.NewService(),
+	}
+}
+
 func (b *Bot) AddStream(stream Stream) {
 	b.streams = append(b.streams, stream)
 }
@@ -42,7 +51,7 @@ func (b *Bot) Run(port int) {
 		panic("no API plugins are used")
 	}
 	cache.NewService().Start()
-	models.NewService("./models/sqlite.db").Start()
+	//models.NewService("./models/sqlite.db").Start()
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
