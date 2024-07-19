@@ -73,7 +73,7 @@ func (b *Bot) Run(port int) {
 		b.handle(eventCache)
 	})
 
-	slog.Info("Listening on port", port)
+	slog.Info("Listening on port", "port", port)
 	err := http.ListenAndServe(":"+strconv.Itoa(port), nil)
 	if err != nil {
 		slog.Error("ListenAndServe: ", "error", err)
