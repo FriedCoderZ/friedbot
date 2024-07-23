@@ -1,4 +1,4 @@
-package core
+package friedbot
 
 import (
 	"encoding/json"
@@ -6,15 +6,12 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
-
-	"github.com/FriedCoderZ/friedbot/cache"
-	"github.com/FriedCoderZ/friedbot/models"
 )
 
 type Bot struct {
 	API          API
 	streams      []Stream
-	CacheService *cache.Service
+	CacheService *Cache
 	plugins      []Plugin
 }
 
@@ -23,12 +20,12 @@ func NewBot() *Bot {
 		API:          nil,
 		streams:      []Stream{},
 		plugins:      []Plugin{},
-		CacheService: cache.NewService(),
+		CacheService: NewService(),
 	}
 }
 
-func (b *Bot) AddStream(stream Stream) {
-	b.streams = append(b.streams, stream)
+func (b *Bot) AppendStreams(stream ...Stream) {
+	b.streams = append(b.streams, stream...)
 }
 
 func (b *Bot) ClearStreams() {
@@ -50,44 +47,51 @@ func (b *Bot) Run(port int) {
 	if b.API == nil {
 		panic("no API plugins are used")
 	}
-	cache.NewService().Start()
-	//models.NewService("./models/sqlite.db").Start()
+	b.CacheService.Start()
+	//models.NewDatabase("./models/sqlite.db").Start()
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		defer func(Body io.ReadCloser) {
+			err := Body.Close()
+			if err != nil {
+				slog.Error("failed to close request body", "error", err)
+			}
+		}(r.Body)
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, "Failed to read request body", http.StatusInternalServerError)
 			return
 		}
-
 		requestBody := make(map[string]any)
 		if err := json.Unmarshal(body, &requestBody); err != nil {
 			http.Error(w, "Failed to parse request body", http.StatusBadRequest)
 			return
 		}
-		event := models.NewEvent(requestBody)
-		eventCache, err := b.API.ParseEvent(event)
+		event, err := b.API.ParseEvent(requestBody)
+		if err != nil {
+			slog.Error("failed to parse event", "error", err)
+			return
+		}
+		cache, err := b.API.GetCache(event)
 		if err != nil {
 			slog.Error("failed to get event cache", "error", err)
 			return
 		}
-		b.handle(eventCache)
+		cache.Add(event)
+		b.handle(cache)
 	})
 
-	slog.Info("Listening on port", "port", port)
 	err := http.ListenAndServe(":"+strconv.Itoa(port), nil)
 	if err != nil {
 		slog.Error("ListenAndServe: ", "error", err)
 	}
 }
 
-func (b *Bot) handle(cache *cache.Cache) {
+func (b *Bot) handle(cache *Ring) {
 	for _, stream := range b.streams {
-		done, err := stream.Handle(cache)
-		if err != nil {
-			slog.Error("failed to handle stream", "error", err)
-			continue
-		}
-		if done {
+		ctx := NewContext(b, &stream, cache)
+		triggered := stream.Handle(ctx)
+		if triggered {
 			break
 		}
 	}
