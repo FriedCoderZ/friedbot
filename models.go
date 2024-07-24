@@ -34,6 +34,7 @@ type Message struct {
 	ID       int64
 	Type     int
 	Segments []Segment
+	Content  string
 	User     *User
 	GroupID  int64
 	Time     int64

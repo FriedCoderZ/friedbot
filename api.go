@@ -16,7 +16,4 @@ type Event interface {
 	GetTime() time.Time
 	IsMsg() bool
 	GetMsg() *Message
-	GetContent() string
-	GetUser() *User
-	GetGroup() *Group
 }
