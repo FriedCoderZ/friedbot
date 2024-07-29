@@ -1,18 +1,21 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/FriedCoderZ/friedbot"
+	"github.com/FriedCoderZ/friedbot/plugins/chatgpt"
 	"github.com/FriedCoderZ/friedbot/plugins/onebot"
-	"github.com/FriedCoderZ/friedbot/plugins/test"
 )
 
 func main() {
 	bot := friedbot.NewBot()
-	api := onebot.NewAPI(9001)
 	plugins := []friedbot.Plugin{
-		api,
-		&test.Plugin{},
+		onebot.NewAPI(9001),
+		chatgpt.NewPlugin(),
+		//&test.Plugin{},
 	}
 	bot.Use(plugins...)
+	fmt.Println("Bot started")
 	bot.Run(9000)
 }

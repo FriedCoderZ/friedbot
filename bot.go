@@ -2,6 +2,7 @@ package friedbot
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -95,4 +96,15 @@ func (b *Bot) handle(cache *Ring) {
 			break
 		}
 	}
+}
+
+func (b *Bot) Reply(msg *Message, content string) (msgID int64, err error) {
+	if msg.Type == MsgTypeGroup && msg.GroupID != 0 {
+		msgID, err = b.API.SendGroupMsg(msg.GroupID, content)
+	} else if msg.Type == MsgTypePrivate && msg.User != nil && msg.User.ID != 0 {
+		msgID, err = b.API.SendPrivateMsg(msg.User.ID, content)
+	} else {
+		return 0, fmt.Errorf("message does not have enough data to reply")
+	}
+	return msgID, err
 }

@@ -60,7 +60,7 @@ func (s *Stream) Trigger(ctx *Context) bool {
 			s.isTriggered = true
 			break
 		}
-		if passCount+len(s.triggers)-index < target {
+		if passCount+len(s.triggers)-index-1 < target {
 			s.isTriggered = false
 			break
 		}

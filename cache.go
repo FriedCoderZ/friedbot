@@ -6,12 +6,12 @@ import (
 )
 
 var (
-	expDuration        = time.Minute * 15
-	checkValidInterval = time.Minute * 10
+	expDuration   = time.Minute * 15
+	checkInterval = time.Minute * 1
 )
 
 type Ring struct {
-	sync.RWMutex
+	*sync.RWMutex
 	data    []Event
 	expTime time.Time
 	size    int
@@ -21,7 +21,7 @@ type Ring struct {
 
 func newRing(size int) *Ring {
 	return &Ring{
-		RWMutex: sync.RWMutex{},
+		RWMutex: &sync.RWMutex{},
 		data:    []Event{},
 		expTime: time.Now().Add(expDuration),
 		size:    size,
@@ -132,7 +132,7 @@ func (p *Pool) Key(key string) *Ring {
 }
 
 func (p *Pool) checkValid() {
-	ticker := time.NewTicker(checkValidInterval)
+	ticker := time.NewTicker(checkInterval)
 	for range ticker.C {
 		for key, value := range p.data {
 			if !value.isValid() {
