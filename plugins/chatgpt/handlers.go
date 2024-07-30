@@ -50,9 +50,7 @@ func tryCreate(ctx *friedbot.Context) {
 		event := ctx.GetEvents().Top()
 		msg := event.GetMsg()
 		l := getLinkByMsg(msg)
-		m := make([]message, len(basicMessages))
-		copy(m, basicMessages)
-		l.messages = m
+		l.clear()
 		bot := ctx.GetBot()
 		_, err := bot.Reply(msg, "已重建新会话")
 		if err != nil {
@@ -79,8 +77,11 @@ func tryWithdraw(ctx *friedbot.Context) {
 		l := getLinkByMsg(msg)
 		bot := ctx.GetBot()
 		var r string
-		if len(l.messages) < 2 {
-			r = "已经没有消息可以撤回了"
+		if len(l.messages) <= 2 {
+			l.messages = clearMessages
+			r = "已经清除魔咒"
+		} else if len(l.messages) <= 4 {
+			r = "已撤回至初始状态"
 		} else {
 			l.withdrawMsg()
 			r = "已回撤上一条对话"

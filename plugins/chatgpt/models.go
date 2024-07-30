@@ -102,6 +102,12 @@ func (l *link) withdrawMsg() {
 	l.refreshExp()
 }
 
+func (l *link) clear() {
+	m := make([]message, len(basicMessages))
+	copy(m, basicMessages)
+	l.messages = m
+}
+
 func (l *link) generateMsg() (*message, error) {
 	l.RLock()
 	defer l.RUnlock()

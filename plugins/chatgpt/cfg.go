@@ -81,4 +81,5 @@ var (
 `,
 		},
 	}
+	clearMessages = []message{{Role: roleTypeSystem, Content: "你是一个群聊bot，致力于解决群友的各种难题"}}
 )
