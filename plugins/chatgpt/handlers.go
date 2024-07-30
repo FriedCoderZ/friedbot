@@ -81,6 +81,7 @@ func tryWithdraw(ctx *friedbot.Context) {
 			l.messages = clearMessages
 			r = "已经清除魔咒"
 		} else if len(l.messages) <= 4 {
+			l.withdrawMsg()
 			r = "已撤回至初始状态"
 		} else {
 			l.withdrawMsg()
